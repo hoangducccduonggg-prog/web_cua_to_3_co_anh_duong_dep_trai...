@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="vi" class="smooth-scroll">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Tập Giữa Học Kỳ I - Tiếng Anh 12 (2026-2027)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Màn hình nhập mật khẩu bảo vệ -->
+    <div id="auth-screen" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-2xl max-w-md w-full text-center border border-slate-100">
+            <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold">🔒</div>
+            <h2 class="text-xl md:text-2xl font-extrabold text-slate-900 mb-2">Trang Web Bảo Mật</h2>
+            <p class="text-slate-500 text-sm mb-6">Vui lòng nhập mật khẩu để truy cập vào hệ thống ôn tập của Tổ 3.</p>
+            
+            <form onsubmit="checkPassword(event)" class="space-y-4">
+                <input type="password" id="password-input" placeholder="Nhập mật khẩu..." class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-600 focus:outline-none text-center font-semibold text-lg" required autofocus>
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition">
+                    Xác Nhận
+                </button>
+                <p id="error-msg" class="text-rose-500 text-xs font-semibold hidden">Mật khẩu không đúng, vui lòng thử lại!</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sticky Header -->
+    <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 py-3.5 flex justify-between items-center">
+            <div>
+                <h1 class="text-lg md:text-xl font-extrabold tracking-tight">ÔN TẬP GIỮA HỌC KỲ I - TIẾNG ANH 12</h1>
+                <p class="text-xs text-indigo-200">Năm học: 2026 - 2027 | Web Tổ 3 có Anh Dương đẹp trai</p>
+            </div>
+            <div id="quiz-status" class="hidden md:flex items-center gap-3 bg-indigo-800/60 px-4 py-1.5 rounded-xl backdrop-blur-sm border border-indigo-500/30">
+                <span class="text-xs uppercase text-indigo-300 font-semibold tracking-wider">Tiến độ</span>
+                <span id="progress-text" class="font-bold text-sm text-white">0 / 55</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-6 w-full flex-grow">
+        
+        <!-- Welcome Screen -->
+        <div id="welcome-card" class="bg-white rounded-3xl p-6 md:p-10 shadow-xl border border-slate-100 text-center max-w-2xl mx-auto my-6">
+            <div class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-3">Ứng Dụng Ôn Tập Tráo Câu Hỏi</h2>
+            <p class="text-slate-600 mb-8 leading-relaxed text-sm md:text-base">Hệ thống đã bật chế độ tráo ngẫu nhiên toàn bộ 55 câu hỏi đề cương Tiếng Anh 12. Mỗi lần vào thi câu hỏi sẽ tự động xáo trộn khác đi!</p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 text-left">
+                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">TỔNG CÂU HỎI</p>
+                    <p id="total-q-badge" class="text-base font-bold text-slate-700">55 câu</p>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">HÌNH THỨC</p>
+                    <p class="text-base font-bold text-slate-700">Tráo ngẫu nhiên</p>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">LỜI GIẢI</p>
+                    <p class="text-base font-bold text-slate-700">Chi tiết</p>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">THỜI GIAN</p>
+                    <p class="text-base font-bold text-slate-700">Tự do</p>
+                </div>
+            </div>
+
+            <button onclick="startQuiz()" class="w-full md:w-auto px-10 py-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 transition duration-200 text-base md:text-lg">
+                Bắt Đầu Làm Bài (Tráo Đề)
+            </button>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container" class="hidden space-y-6">
+            <div id="questions-wrapper" class="space-y-6"></div>
+
+            <div class="bg-white/90 backdrop-blur-md p-4 md:p-5 rounded-3xl shadow-lg border border-slate-100 flex items-center justify-between gap-4 sticky bottom-4 z-30">
+                <div>
+                    <p class="text-xs md:text-sm text-slate-500 font-medium">Đã trả lời: <span id="answered-count" class="font-bold text-indigo-600">0</span> / <span id="total-count">55</span> câu</p>
+                </div>
+                <button onclick="submitQuiz()" id="submit-btn" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-md transition duration-200 text-sm md:text-base">
+                    Nộp Bài & Xem Kết Quả
+                </button>
+            </div>
+        </div>
+
+        <!-- Score Summary Card -->
+        <div id="result-card" class="hidden bg-white rounded-3xl p-6 md:p-10 shadow-xl border border-slate-100 text-center max-w-2xl mx-auto my-6">
+            <div id="result-icon" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl bg-indigo-50">🏆</div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-2">Kết Quả Bài Làm</h2>
+            <p id="result-msg" class="text-slate-600 mb-6 text-sm">Bạn đã hoàn thành bài ôn tập!</p>
+            
+            <div class="bg-indigo-50 border border-indigo-100 rounded-3xl p-6 mb-8 max-w-sm mx-auto">
+                <span class="text-xs uppercase font-extrabold text-indigo-400 tracking-wider">TỔNG ĐIỂM</span>
+                <div class="text-4xl md:text-5xl font-black text-indigo-600 my-2">
+                    <span id="final-score">0</span> / <span id="final-max">55</span>
+                </div>
+                <p id="accuracy-rate" class="text-xs md:text-sm font-semibold text-indigo-800">Tỷ lệ chính xác: 0%</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onclick="scrollToAnswers()" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition text-sm">
+                    Xem Đáp Án Chi Tiết
+                </button>
+                <button onclick="restartQuiz()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-md transition text-sm">
+                    Làm Lại Bài Thi (Tráo Đề Mới)
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+        <p>© Web của Tổ 3 có Anh Dương đẹp trai</p>
+    </footer>
+
+    <script>
+        // Kiểm tra mật khẩu
+        function checkPassword(event) {
+            event.preventDefault();
+            const passInput = document.getElementById('password-input').value;
+            const errorMsg = document.getElementById('error-msg');
+            
+            if (passInput === "duongdeptrai") {
+                document.getElementById('auth-screen').classList.add('hidden');
+                localStorage.setItem('isUnlocked', 'true');
+            } else {
+                errorMsg.classList.remove('hidden');
+                document.getElementById('password-input').value = '';
+            }
+        }
+
+        // Tự động mở khóa nếu đã nhập đúng trước đó trong phiên duyệt web
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isUnlocked') === 'true') {
+                document.getElementById('auth-screen').classList.add('hidden');
+            }
+            
+            const count = originalQuestionsData.length;
+            document.getElementById('total-q-badge').innerText = `${count} câu`;
+            totalCountEl.innerText = count;
+            document.getElementById('final-max').innerText = count;
+            progressText.innerText = `0 / ${count}`;
+        });
+
+        const originalQuestionsData = [
+            { id: 1, section: "II. LANGUAGE - Sắp xếp hội thoại", originalNo: 1, question: "Question 1:\na. That's great! Congratulations on your success!\nb. I've just passed the university entrance exam.\nc. Thank you! I'm so happy.", options: [{ key: "A", text: "b - a - c" }, { key: "B", text: "b - c - a" }, { key: "C", text: "a - b - c" }, { key: "D", text: "c - b - a" }], correct: "A", explanation: "Thứ tự mạch lạc: b -> a -> c." },
+            { id: 2, section: "II. LANGUAGE - Sắp xếp hội thoại", originalNo: 2, question: "Question 2:\na. Mark: That's great! What changes have you made so far?\nb. Anna: Yes, I've been taking shorter showers and fixing leaky faucets to save water.\nc. Anna: I've been trying to live a more sustainable life lately.\nd. Mark: That's a good start! Have you thought about reducing your water usage too?\ne. Anna: I started using reusable bags and switched to energy-efficient light bulbs.", options: [{ key: "A", text: "c - a - e - d - b" }, { key: "B", text: "c - e - d - b - a" }, { key: "C", text: "d - b - a - e - c" }, { key: "D", text: "d - e - a - b - c" }], correct: "A", explanation: "Thứ tự hội thoại: c -> a -> e -> d -> b." },
+            { id: 3, section: "II. LANGUAGE - Sắp xếp hội thoại", originalNo: 3, question: "Question 3:\na. Nice to meet you, Nam. I'm Hoa.\nb. Nam, this is Hoa, my classmate.\nc. Hi, Hoa. Nice to meet you, too.\nd. Hello, Mai. Who's your friend?", options: [{ key: "A", text: "d - a - b - c" }, { key: "B", text: "d - b - a - c" }, { key: "C", text: "b - a - d - c" }, { key: "D", text: "c - b - a - d" }], correct: "B", explanation: "Thứ tự: d -> b -> a -> c." },
+            { id: 4, section: "II. LANGUAGE - Sắp xếp hội thoại", originalNo: 4, question: "Question 4:\na. That's great! Congratulations on your success!\nb. I've just passed the university entrance exam.\nc. Thank you! I'm so happy.", options: [{ key: "A", text: "a - b - c" }, { key: "B", text: "c - b - a" }, { key: "C", text: "b - c - a" }, { key: "D", text: "b - a - c" }], correct: "D", explanation: "Thứ tự giao tiếp đúng: b - a - c." },
+            { id: 5, section: "II. LANGUAGE - Giao tiếp", originalNo: 5, question: "Question 5 (At a formal conference):\nSpeaker: \"I'd like to present our special guest, Professor Brown.\"\nYou: \"________, Professor Brown.\"", options: [{ key: "A", text: "How do you do?" }, { key: "B", text: "Take care" }, { key: "C", text: "Well done" }, { key: "D", text: "See you" }], correct: "A", explanation: "Chào trang trọng lần đầu gặp mặt dùng 'How do you do?'." },
+            { id: 6, section: "II. LANGUAGE - Giao tiếp", originalNo: 6, question: "Question 6:\nNam: \"Mai, I'd like you to meet Mr. Brown, our new English teacher.\"\nMai: \"________\"", options: [{ key: "A", text: "See you later." }, { key: "B", text: "It's nice to meet you." }, { key: "C", text: "I'm sorry to hear that." }, { key: "D", text: "Never mind." }], correct: "B", explanation: "Đáp lại lời giới thiệu: 'It's nice to meet you.'." },
+            { id: 7, section: "II. LANGUAGE - Giao tiếp", originalNo: 7, question: "Question 7:\nTeacher: \"Class, I'd like to introduce our new principal, Mr. Smith.\"\nStudents: \"________, Mr. Smith.\"", options: [{ key: "A", text: "That's a good idea" }, { key: "B", text: "You're welcome" }, { key: "C", text: "It's a pleasure to meet you" }, { key: "D", text: "I'm afraid not" }], correct: "C", explanation: "'It's a pleasure to meet you' phù hợp bối cảnh trang trọng." },
+            { id: 8, section: "II. LANGUAGE - Giao tiếp", originalNo: 8, question: "Question 8:\nTom: \"Hi, Anna. This is my friend, David.\"\nAnna: \"________, David.\"", options: [{ key: "A", text: "Great to meet you" }, { key: "B", text: "How do you do?" }, { key: "C", text: "It's a pleasure to meet you" }, { key: "D", text: "May I introduce myself?" }], correct: "A", explanation: "Chào bạn bè thân mật dùng 'Great to meet you'." },
+            { id: 9, section: "II. LANGUAGE - Ngữ pháp", originalNo: 9, question: "Question 9: When we ________ at the station last week, the train ________ already.", options: [{ key: "A", text: "arrived - was leaving" }, { key: "B", text: "were arriving - left" }, { key: "C", text: "arrived - had left" }, { key: "D", text: "were arriving - was leaving" }], correct: "C", explanation: "Tàu rời đi trước khi đến ga -> Quá khứ hoàn thành (had left)." },
+            { id: 10, section: "II. LANGUAGE - Ngữ pháp", originalNo: 10, question: "Question 10: My brother has always wanted to become ________ architect because he enjoys designing buildings.", options: [{ key: "A", text: "an" }, { key: "B", text: "a" }, { key: "C", text: "the" }, { key: "D", text: "Ø" }], correct: "A", explanation: "Architect bắt đầu bằng nguyên âm -> Dùng 'an'." },
+            { id: 11, section: "II. LANGUAGE - Ngữ pháp", originalNo: 11, question: "Question 11: While the band ________ on the stage, the fans were singing along.", options: [{ key: "A", text: "was performing" }, { key: "B", text: "performed" }, { key: "C", text: "was performed" }, { key: "D", text: "performe" }], correct: "A", explanation: "Hành động diễn ra song song dùng Quá khứ tiếp diễn." },
+            { id: 12, section: "II. LANGUAGE - Từ vựng", originalNo: 12, question: "Question 12: Scientists have worked ________ some promising solutions to water pollution in big cities.", options: [{ key: "A", text: "in" }, { key: "B", text: "out" }, { key: "C", text: "with" }, { key: "D", text: "at" }], correct: "B", explanation: "Work out = tìm ra giải pháp." },
+            { id: 13, section: "II. LANGUAGE - Từ vựng", originalNo: 13, question: "Question 13: Marie Curie was ________ for her achievements in physics and chemistry.", options: [{ key: "A", text: "admired" }, { key: "B", text: "got" }, { key: "C", text: "liked" }, { key: "D", text: "looked" }], correct: "A", explanation: "Be admired for = được ngưỡng mộ vì." },
+            { id: 14, section: "II. LANGUAGE - Ngữ pháp", originalNo: 14, question: "Question 14: Our school has started a recycling campaign, ________ encourages students to protect the environment.", options: [{ key: "A", text: "what" }, { key: "B", text: "that" }, { key: "C", text: "which" }, { key: "D", text: "who" }], correct: "C", explanation: "Mệnh đề quan hệ không xác định dùng ', which'." },
+            { id: 15, section: "II. LANGUAGE - Từ vựng", originalNo: 15, question: "Question 15: Don't forget to ________ the lights before you leave the room.", options: [{ key: "A", text: "turn on" }, { key: "B", text: "turn off" }, { key: "C", text: "put off" }, { key: "D", text: "take off" }], correct: "B", explanation: "Turn off = tắt điện." },
+            { id: 16, section: "II. LANGUAGE - Từ vựng", originalNo: 16, question: "Question 16: Don't forget to ________ the lights before you leave the room.", options: [{ key: "A", text: "turn on" }, { key: "B", text: "put off" }, { key: "C", text: "turn off" }, { key: "D", text: "take off" }], correct: "C", explanation: "Turn off = tắt điện." },
+            { id: 17, section: "II. LANGUAGE - Ngữ pháp", originalNo: 17, question: "Question 17: We visited ________ Great Wall of China last summer.", options: [{ key: "A", text: "a" }, { key: "B", text: "an" }, { key: "C", text: "the" }, { key: "D", text: "Ø" }], correct: "C", explanation: "Địa danh có 'of' dùng mạo từ 'the'." },
+            { id: 18, section: "II. LANGUAGE - Ngữ pháp", originalNo: 18, question: "Question 18: Marry ________ in the kitchen when she saw a mouse.", options: [{ key: "A", text: "is cooking" }, { key: "B", text: "has cooked" }, { key: "C", text: "was cooking" }, { key: "D", text: "cooks" }], correct: "C", explanation: "Hành động đang diễn ra (was cooking) thì hành động khác chen vào." },
+            { id: 19, section: "II. LANGUAGE - Từ vựng", originalNo: 19, question: "Question 19: My dad was given the \"Employee of the Year\" award for his impressive ________ at work.", options: [{ key: "A", text: "genius" }, { key: "B", text: "accounts" }, { key: "C", text: "determination" }, { key: "D", text: "achievements" }], correct: "D", explanation: "Achievements = các thành tựu." },
+            { id: 20, section: "II. LANGUAGE - Ngữ pháp", originalNo: 20, question: "Question 20: She ________ very hard and finally made a name for herself in the art world.", options: [{ key: "A", text: "worked" }, { key: "B", text: "has worked" }, { key: "C", text: "have worked" }, { key: "D", text: "works" }], correct: "B", explanation: "Hiện tại hoàn thành nhấn mạnh kết quả kéo dài." },
+            { id: 21, section: "II. LANGUAGE - Từ vựng", originalNo: 21, question: "Question 21: Queen Elizabeth II passed ________ on 8 September, 2022.", options: [{ key: "A", text: "in" }, { key: "B", text: "off" }, { key: "C", text: "away" }, { key: "D", text: "out" }], correct: "C", explanation: "Pass away = qua đời." },
+            { id: 22, section: "II. LANGUAGE - Từ vựng", originalNo: 22, question: "Question 22: If we want to protect our planet, we should ________ waste whenever possible.", options: [{ key: "A", text: "reduce" }, { key: "B", text: "increase" }, { key: "C", text: "ignore" }, { key: "D", text: "create" }], correct: "A", explanation: "Reduce waste = cắt giảm rác thải." },
+            { id: 23, section: "III. READING - Bài đọc 1", originalNo: 23, passage: "Are you curious (23)____ the unique cultures of the world and how they shape global connections? Join our workshop...", question: "Question 23:", options: [{ key: "A", text: "with" }, { key: "B", text: "about" }, { key: "C", text: "on" }, { key: "D", text: "at" }], correct: "B", explanation: "Curious about sth." },
+            { id: 24, section: "III. READING - Bài đọc 1", originalNo: 24, passage: "Learn how people from different parts of the world celebrate life, overcome challenges, and (24)____ connections.", question: "Question 24:", options: [{ key: "A", text: "build" }, { key: "B", text: "pout" }, { key: "C", text: "tread" }, { key: "D", text: "found" }], correct: "A", explanation: "Build connections." },
+            { id: 25, section: "III. READING - Bài đọc 1", originalNo: 25, passage: "Beyond exploring diversity, you'll also develop essential skills like cross-cultural communication, empathy, and (25)____...", question: "Question 25:", options: [{ key: "A", text: "adaptable" }, { key: "B", text: "adaptively" }, { key: "C", text: "adaptive" }, { key: "D", text: "adaptability" }], correct: "D", explanation: "Cần danh từ -> adaptability." },
+            { id: 26, section: "III. READING - Bài đọc 1", originalNo: 26, passage: "In addition, our admissions team will be available on-site to provide expert advice on (26)____...", question: "Question 26:", options: [{ key: "A", text: "study programs overseas" }, { key: "B", text: "programs overseas study" }, { key: "C", text: "overseas study programs" }, { key: "D", text: "study overseas programs" }], correct: "C", explanation: "Overseas study programs." },
+            { id: 27, section: "III. READING - Bài đọc 1", originalNo: 27, passage: "Whether you desire (27)____ broad, this workshop is your gateway to the global stage!", question: "Question 27:", options: [{ key: "A", text: "to study" }, { key: "B", text: "study" }, { key: "C", text: "to studying" }, { key: "D", text: "studying" }], correct: "A", explanation: "Desire to do sth." },
+            { id: 28, section: "III. READING - Bài đọc 2 (Mai Anh)", originalNo: 28, passage: "Mai Anh is a young Vietnamese woman whose story has inspired many students...", question: "Question 28: What is the passage mainly about?", options: [{ key: "A", text: "The difficulties of studying English at university." }, { key: "B", text: "A young woman who helps improve educational opportunities for children." }, { key: "C", text: "The advantages of working in a big city." }, { key: "D", text: "The importance of earning a high salary." }], correct: "B", explanation: "Nói về cô gái trẻ giúp cải thiện cơ hội học tập cho trẻ em." },
+            { id: 29, section: "III. READING - Bài đọc 2 (Mai Anh)", originalNo: 29, passage: "Mai Anh grew up in a small village... and she often had to walk several kilometres to school.", question: "Question 29: According to paragraph 2, what was one difficulty Mai Anh experienced when she was young?", options: [{ key: "A", text: "She had to walk a long distance to school." }, { key: "B", text: "She could not communicate with her parents." }, { key: "C", text: "She had to work as a university teacher." }, { key: "D", text: "She did not want to continue her education." }], correct: "A", explanation: "Phải đi bộ một khoảng cách dài đến trường." },
+            { id: 30, section: "III. READING - Bài đọc 2 (Mai Anh)", originalNo: 30, passage: "...where educational opportunities were limited.", question: "Question 30: The word 'limited' in paragraph 2 is closest in meaning to ________.", options: [{ key: "A", text: "unlimited" }, { key: "B", text: "expensive" }, { key: "C", text: "restricted" }, { key: "D", text: "convenient" }], correct: "C", explanation: "Limited = restricted (hạn chế)." },
+            { id: 31, section: "III. READING - Bài đọc 2 (Mai Anh)", originalNo: 31, passage: "She noticed that many children in remote villages lacked books... therefore, she started a volunteer project...", question: "Question 31: Why did Mai Anh start her volunteer project?", options: [{ key: "A", text: "She wanted to become famous on social media." }, { key: "B", text: "She wanted to help children who lacked educational resources." }, { key: "C", text: "She wanted to open a private English centre." }, { key: "D", text: "She needed to find a high-paying job." }], correct: "B", explanation: "Giúp đỡ trẻ em thiếu thốn tài nguyên học tập." },
+            { id: 32, section: "III. READING - Bài đọc 2 (Mai Anh)", originalNo: 32, passage: "...free English lessons for them.", question: "Question 32: The word 'them' in paragraph 3 refers to ________.", options: [{ key: "A", text: "local organisations" }, { key: "B", text: "university students" }, { key: "C", text: "children in remote villages" }, { key: "D", text: "Mai Anh's parents" }], correct: "C", explanation: "'them' chỉ trẻ em ở các ngôi làng vùng sâu vùng xa." },
+            { id: 33, section: "III. READING - Bài đọc 2 (Mai Anh)", originalNo: 33, passage: "At first, the project faced several challenges...", question: "Question 33: Which of the following is NOT mentioned as a challenge Mai Anh faced?", options: [{ key: "A", text: "Having little money." }, { key: "B", text: "Finding enough volunteers." }, { key: "C", text: "Encouraging people to support the project." }, { key: "D", text: "Finding a suitable university to attend." }], correct: "D", explanation: "Không đề cập việc tìm trường đại học." },
+            { id: 34, section: "III. READING - Bài đọc 2 (Mai Anh)", originalNo: 34, passage: "By taking small but meaningful actions, ordinary people can create extraordinary changes...", question: "Question 34: What can be inferred from the passage?", options: [{ key: "A", text: "Only famous people can make a difference in society." }, { key: "B", text: "Helping others requires people to be wealthy." }, { key: "C", text: "Small actions can lead to positive changes in a community." }, { key: "D", text: "Children in remote areas are not interested in learning English." }], correct: "C", explanation: "Hành động nhỏ tạo thay đổi lớn." },
+            { id: 35, section: "III. READING - Bài đọc 3 (Văn hóa)", originalNo: 35, passage: "Today, people from different cultural backgrounds interact more frequently...", question: "Question 35: What is the passage mainly about?", options: [{ key: "A", text: "The disadvantages of international travel." }, { key: "B", text: "The importance of understanding and respecting cultural diversity." }, { key: "C", text: "The reasons young people should study abroad." }, { key: "D", text: "The differences between traditional and modern food." }], correct: "B", explanation: "Tầm quan trọng của việc hiểu và tôn trọng sự đa dạng văn hóa." },
+            { id: 36, section: "III. READING - Bài đọc 3 (Văn hóa)", originalNo: 36, passage: "This diversity can bring many benefits...", question: "Question 36: According to paragraph 2, what is one benefit of cultural diversity?", options: [{ key: "A", text: "It allows everyone to follow the same traditions." }, { key: "B", text: "It prevents people from learning foreign languages." }, { key: "C", text: "It helps people discover different perspectives and experiences." }, { key: "D", text: "It removes all misunderstandings between people." }], correct: "C", explanation: "Khám phá các góc nhìn và trải nghiệm khác nhau." },
+            { id: 37, section: "III. READING - Bài đọc 3 (Văn hóa)", originalNo: 37, passage: "...people may unintentionally offend one another.", question: "Question 37: The word 'unintentionally' in paragraph 3 is closest in meaning to ________.", options: [{ key: "A", text: "deliberately" }, { key: "B", text: "accidentally" }, { key: "C", text: "politely" }, { key: "D", text: "confidently" }], correct: "B", explanation: "Unintentionally = accidentally (vô tình)." },
+            { id: 38, section: "III. READING - Bài đọc 3 (Văn hóa)", originalNo: 38, passage: "To build positive relationships, people should develop cultural awareness...", question: "Question 38: According to paragraph 4, what should people do to develop cultural awareness?", options: [{ key: "A", text: "Judge unfamiliar customs immediately." }, { key: "B", text: "Avoid communicating with people from other cultures." }, { key: "C", text: "Assume that all cultures share the same values." }, { key: "D", text: "Listen carefully and learn about other people's traditions." }], correct: "D", explanation: "Lắng nghe cẩn thận và học hỏi truyền thống." },
+            { id: 39, section: "III. READING - Bài đọc 3 (Văn hóa)", originalNo: 39, passage: "These activities help students appreciate diversity...", question: "Question 39: The word 'These' in paragraph 5 refers to ________.", options: [{ key: "A", text: "different countries" }, { key: "B", text: "students' feelings" }, { key: "C", text: "school activities that promote cultural understanding" }, { key: "D", text: "people's personal traditions" }], correct: "C", explanation: "Chỉ các hoạt động trường học thúc đẩy hiểu biết văn hóa." },
+            { id: 40, section: "III. READING - Bài đọc 3 (Văn hóa)", originalNo: 40, passage: "Schools can play an important role in promoting cultural understanding...", question: "Question 40: Which of the following is NOT mentioned as a way schools can promote cultural understanding?", options: [{ key: "A", text: "Organising international days." }, { key: "B", text: "Inviting people from different countries to share experiences." }, { key: "C", text: "Encouraging students to work on projects together." }, { key: "D", text: "Requiring students to give up their own traditions." }], correct: "D", explanation: "Không yêu cầu học sinh từ bỏ truyền thống." },
+            { id: 41, section: "III. READING - Bài đọc 3 (Văn hóa)", originalNo: 41, passage: "In conclusion, cultural diversity should be seen as an opportunity rather than a problem...", question: "Question 41: What can be inferred from the passage?", options: [{ key: "A", text: "People must abandon their traditions to understand other cultures." }, { key: "B", text: "Cultural misunderstandings can be reduced through respectful communication." }, { key: "C", text: "Cultural diversity is only useful in schools." }, { key: "D", text: "People from different cultures always have conflicting values." }], correct: "B", explanation: "Giảm hiểu lầm thông qua giao tiếp tôn trọng." },
+            { id: 42, section: "III. READING - Bài đọc 4 (Tảng băng trôi)", originalNo: 42, passage: "The concept of obtaining fresh water from an iceberg...", question: "Question 42: Which of the following is NOT mentioned as a challenge in towing icebergs?", options: [{ key: "A", text: "Prevention of rapid melting" }, { key: "B", text: "Funneling fresh water to shore" }, { key: "C", text: "High cost of desalination" }, { key: "D", text: "Subsurface currents" }], correct: "C", explanation: "High cost of desalination không phải thử thách kéo tảng băng." },
+            { id: 43, section: "III. READING - Bài đọc 4 (Tảng băng trôi)", originalNo: 43, passage: "...arid regions of the world...", question: "Question 43: The word 'arid' in paragraph 1 is OPPOSITE in meaning to ________.", options: [{ key: "A", text: "dry" }, { key: "B", text: "wet" }, { key: "C", text: "remoted" }, { key: "D", text: "high" }], correct: "B", explanation: "Arid (khô hạn) trái nghĩa với wet (ẩm ướt)." },
+            { id: 44, section: "III. READING - Bài đọc 4 (Tảng băng trôi)", originalNo: 44, passage: "Icebergs are not like sea ice... rather, they are formed entirely on land...", question: "Question 44: The word 'they' in paragraph 3 refers to ________.", options: [{ key: "A", text: "glaciers" }, { key: "B", text: "sea ice" }, { key: "C", text: "icebergs" }, { key: "D", text: "polar regions" }], correct: "C", explanation: "'they' chỉ icebergs." },
+            { id: 45, section: "III. READING - Bài đọc 4 (Tảng băng trôi)", originalNo: 45, passage: "...untapped fresh water so immense that it could sustain...", question: "Question 45: The word 'immense' in paragraph 2 is CLOSEST in meaning to ________.", options: [{ key: "A", text: "small" }, { key: "B", text: "limited" }, { key: "C", text: "huge" }, { key: "D", text: "little" }], correct: "C", explanation: "Immense = huge (khổng lồ)." },
+            { id: 46, section: "III. READING - Bài đọc 4 (Tảng băng trôi)", originalNo: 46, passage: "Scientists have warned that the human race will outgrow its fresh water supply faster than it runs out of food.", question: "Question 46: Which of the following best paraphrases the underlined sentence?", options: [{ key: "A", text: "Scientists believe that fresh water storage will run out before humans need food." }, { key: "B", text: "Scientists warn that the demand for fresh water will exceed supply faster than food." }, { key: "C", text: "Scientists predict that food shortages will inevitably occur before water shortages." }, { key: "D", text: "Scientists claim that fresh water and food shortages will never happen at the same time." }], correct: "B", explanation: "Nhu cầu nước ngọt vượt quá nguồn cung nhanh hơn lương thực." },
+            { id: 47, section: "III. READING - Bài đọc 4 (Tảng băng trôi)", originalNo: 47, passage: "Icebergs have been known to drift as far north as 35 degrees south of the equator in the Atlantic Ocean.", question: "Question 47: Which of the following is TRUE according to the passage?", options: [{ key: "A", text: "In Atlantic, icebergs are usually formed when the sea water freezes in winter." }, { key: "B", text: "Most icebergs originate from the Arctic region and break off glaciers." }, { key: "C", text: "Icebergs have been recorded at 35 degrees south of the equator in the Atlantic." }, { key: "D", text: "Glaciers contain less than half of the Earth's fresh water." }], correct: "C", explanation: "Đúng theo thông tin bài đọc." },
+            { id: 48, section: "III. READING - Bài đọc 4 (Tảng băng trôi)", originalNo: 48, passage: "Huge glaciers that stretch over the shallow continental shelf give birth to icebergs...", question: "Question 48: In which paragraph does the writer mention the formation of icebergs?", options: [{ key: "A", text: "Paragraph 1" }, { key: "B", text: "Paragraph 2" }, { key: "C", text: "Paragraph 3" }, { key: "D", text: "Paragraph 4" }], correct: "C", explanation: "Đoạn 3 đề cập sự hình thành tảng băng trôi." },
+            { id: 49, section: "IV. WRITING - Viết lại câu", originalNo: 49, question: "Question 49:\n\"He forgot his homework. This made his teacher angry.\"", options: [{ key: "A", text: "He forgot his homework, which made his teacher angry." }, { key: "B", text: "He forgot his homework which made his teacher angry." }, { key: "C", text: "His teacher was angry, which he forgot his homework." }, { key: "D", text: "He forgot his homework which was his teacher angry." }], correct: "A", explanation: "Dùng mệnh đề quan hệ không xác định ', which'." },
+            { id: 50, section: "IV. WRITING - Viết lại câu", originalNo: 50, question: "Question 50:\n\"Traditional festivals help young people understand their cultural heritage. They also bring communities together.\"", options: [{ key: "A", text: "Traditional festivals help young people understand their cultural heritage, but they separate communities." }, { key: "B", text: "Traditional festivals not only help young people understand their cultural heritage but also bring communities together." }, { key: "C", text: "Traditional festivals bring communities together because young people do not understand their cultural heritage." }, { key: "D", text: "Traditional festivals help young people understand their cultural heritage unless they bring communities together." }], correct: "B", explanation: "Cấu trúc Not only... but also..." },
+            { id: 51, section: "IV. WRITING - Viết lại câu", originalNo: 51, question: "Question 51:\n\"People should respect cultural differences. They will be able to build stronger relationships with others.\"", options: [{ key: "A", text: "If people respect cultural differences, they will be able to build stronger relationships with others." }, { key: "B", text: "Unless people respect cultural differences, they will build stronger relationships with others." }, { key: "C", text: "People respect cultural differences, so they were unable to build stronger relationships with others." }, { key: "D", text: "People should respect cultural differences despite they want to build stronger relationships with others." }], correct: "A", explanation: "Câu điều kiện loại 1." },
+            { id: 52, section: "IV. WRITING - Viết lại câu", originalNo: 52, question: "Question 52:\n\"A sudden sharp noise outside interrupted my reading of a fascinating novel on the bus.\"", options: [{ key: "A", text: "While I was reading a fascinating novel on the bus, a sudden sharp noise outside made me jump." }, { key: "B", text: "I had read a fascinating novel on the bus when I was startled by a sudden sharp noise outside." }, { key: "C", text: "I jumped when I was reading a fascinating novel on the bus because of a sudden sharp noise outside." }, { key: "D", text: "I finished reading a fascinating novel on the bus before a sudden sharp noise outside made me jump." }], correct: "A", explanation: "Cấu trúc While + Quá khứ tiếp diễn." },
+            { id: 53, section: "IV. WRITING - Sắp xếp bức thư", originalNo: 53, question: "Question 53 (Hi Minh):\na. I've learned some useful tips for saving electricity online...\nb. These small changes not only reduce our bills...\nc. Let's both try to follow these habits...\nd. Turning off lights when leaving a room...\ne. Another great idea is to use energy-efficient appliances... Take care, Lan", options: [{ key: "A", text: "d - b - c - e - a" }, { key: "B", text: "a - d - e - b - c" }, { key: "C", text: "c - e - d - a - b" }, { key: "D", text: "e - a - b - c - d" }], correct: "B", explanation: "Thứ tự mạch thư: a -> d -> e -> b -> c." },
+            { id: 54, section: "IV. WRITING - Sắp xếp email", originalNo: 54, question: "Question 54 (Dear Mr. Smith):\na. Could you please review the updated report...\nb. I didn't realize the error until it was sent...\nc. Please rest assured that I will double-check...\nd. I am writing to apologize for the mistake...\ne. I take full responsibility for the oversight... Sincerely, David", options: [{ key: "A", text: "a - c - e - d - b" }, { key: "B", text: "e - c - b - a - d" }, { key: "C", text: "c - e - a - b - d" }, { key: "D", text: "d - b - e - c - a" }], correct: "D", explanation: "Cấu trúc email xin lỗi: d -> b -> e -> c -> a." },
+            { id: 55, section: "IV. WRITING - Sắp xếp đoạn văn", originalNo: 55, question: "Question 55:\na. Over recent years, with advancements in technology...\nb. Companies also benefit from online work...\nc. The rise of virtual tools...\nd. However, despite these advantages...\ne. This flexibility allows employees...", options: [{ key: "A", text: "a - c - e - b - d" }, { key: "B", text: "c - a - b - e - d" }, { key: "C", text: "a - e - b - c - d" }, { key: "D", text: "a - d - e - b - c" }], correct: "A", explanation: "Thứ tự lập luận: a -> c -> e -> b -> d." }
+        ];
+
+        let questionsData = [];
+        let userAnswers = {};
+
+        const welcomeCard = document.getElementById('welcome-card');
+        const quizContainer = document.getElementById('quiz-container');
+        const questionsWrapper = document.getElementById('questions-wrapper');
+        const resultCard = document.getElementById('result-card');
+        const progressText = document.getElementById('progress-text');
+        const answeredCountEl = document.getElementById('answered-count');
+        const totalCountEl = document.getElementById('total-count');
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startQuiz() {
+            questionsData = shuffleArray(originalQuestionsData);
+            userAnswers = {};
+
+            welcomeCard.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            document.getElementById('quiz-status').classList.remove('hidden');
+            document.getElementById('quiz-status').classList.add('flex');
+            
+            renderQuestions();
+            updateProgress();
+        }
+
+        function renderQuestions() {
+            questionsWrapper.innerHTML = '';
+
+            questionsData.forEach((q, idx) => {
+                const qCard = document.createElement('div');
+                qCard.id = `question-card-${q.id}`;
+                qCard.className = "bg-white rounded-3xl p-5 md:p-8 shadow-md border border-slate-100 transition duration-300";
+
+                let passageHTML = '';
+                if (q.passage) {
+                    passageHTML = `
+                        <div class="mb-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 text-xs md:text-sm leading-relaxed max-h-48 overflow-y-auto">
+                            <span class="font-bold text-[10px] uppercase text-indigo-500 block mb-1">Nội dung văn bản đọc hiểu</span>
+                            ${q.passage}
+                        </div>
+                    `;
+                }
+
+                let optionsHTML = q.options.map(opt => `
+                    <label onclick="selectAnswer(${q.id}, '${opt.key}')" class="flex items-start p-3.5 md:p-4 rounded-2xl border-2 border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/50 cursor-pointer transition duration-150 group">
+                        <input type="radio" name="question-${q.id}" value="${opt.key}" class="hidden" />
+                        <span id="opt-badge-${q.id}-${opt.key}" class="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-indigo-100 text-slate-600 group-hover:text-indigo-600 font-bold text-xs flex items-center justify-center mr-3 flex-shrink-0 mt-0.5 transition">
+                            ${opt.key}
+                        </span>
+                        <span class="text-xs md:text-sm font-medium text-slate-700 leading-snug">
+                            ${opt.text}
+                        </span>
+                    </label>
+                `).join('');
+
+                qCard.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+                            ${q.section} (Gốc: Câu ${q.originalNo})
+                        </span>
+                        <span class="text-xs font-semibold text-slate-400">Câu ${idx + 1} / ${questionsData.length}</span>
+                    </div>
+
+                    ${passageHTML}
+
+                    <div class="text-sm md:text-base font-bold text-slate-800 mb-5 whitespace-pre-line leading-relaxed">
+                        ${q.question}
+                    </div>
+
+                    <div class="space-y-2.5 mb-2">
+                        ${optionsHTML}
+                    </div>
+
+                    <div id="explanation-${q.id}" class="hidden mt-5 p-4 rounded-2xl text-xs md:text-sm leading-relaxed border"></div>
+                `;
+
+                questionsWrapper.appendChild(qCard);
+            });
+        }
+
+        function selectAnswer(questionId, selectedKey) {
+            userAnswers[questionId] = selectedKey;
+
+            const qData = questionsData.find(q => q.id === questionId);
+            qData.options.forEach(opt => {
+                const badge = document.getElementById(`opt-badge-${questionId}-${opt.key}`);
+                const label = badge.parentElement;
+
+                if (opt.key === selectedKey) {
+                    label.classList.add('border-indigo-600', 'bg-indigo-50/80');
+                    label.classList.remove('border-slate-100');
+                    badge.classList.add('bg-indigo-600', 'text-white');
+                    badge.classList.remove('bg-slate-100', 'text-slate-600');
+                } else {
+                    label.classList.remove('border-indigo-600', 'bg-indigo-50/80');
+                    label.classList.add('border-slate-100');
+                    badge.classList.remove('bg-indigo-600', 'text-white');
+                    badge.classList.add('bg-slate-100', 'text-slate-600');
+                }
+            });
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const count = Object.keys(userAnswers).length;
+            answeredCountEl.innerText = count;
+            progressText.innerText = `${count} / ${questionsData.length}`;
+        }
+
+        function submitQuiz() {
+            const totalQ = questionsData.length;
+            const answeredCount = Object.keys(userAnswers).length;
+
+            if (answeredCount < totalQ) {
+                if (!confirm(`Bạn mới làm ${answeredCount}/${totalQ} câu. Bạn có chắc chắn muốn nộp bài?`)) {
+                    return;
+                }
+            }
+
+            let score = 0;
+
+            questionsData.forEach(q => {
+                const userChoice = userAnswers[q.id];
+                const expEl = document.getElementById(`explanation-${q.id}`);
+                expEl.classList.remove('hidden');
+
+                if (userChoice === q.correct) {
+                    score++;
+                    expEl.className = "mt-5 p-4 rounded-2xl text-xs md:text-sm leading-relaxed border bg-emerald-50 border-emerald-200 text-emerald-900";
+                    expEl.innerHTML = `<p class="font-bold text-emerald-700 mb-1">✓ Chính xác!</p><p>${q.explanation}</p>`;
+                } else {
+                    expEl.className = "mt-5 p-4 rounded-2xl text-xs md:text-sm leading-relaxed border bg-rose-50 border-rose-200 text-rose-900";
+                    expEl.innerHTML = `<p class="font-bold text-rose-700 mb-1">✗ Chưa đúng (Đáp án đúng: ${q.correct})</p><p>${q.explanation}</p>`;
+                }
+
+                q.options.forEach(opt => {
+                    const badge = document.getElementById(`opt-badge-${q.id}-${opt.key}`);
+                    const label = badge.parentElement;
+                    label.style.pointerEvents = 'none';
+
+                    if (opt.key === q.correct) {
+                        label.classList.add('border-emerald-500', 'bg-emerald-50');
+                        badge.classList.add('bg-emerald-600', 'text-white');
+                    } else if (opt.key === userChoice) {
+                        label.classList.add('border-rose-500', 'bg-rose-50');
+                        badge.classList.add('bg-rose-600', 'text-white');
+                    }
+                });
+            });
+
+            document.getElementById('final-score').innerText = score;
+            const percentage = Math.round((score / totalQ) * 100);
+            document.getElementById('accuracy-rate').innerText = `Tỷ lệ chính xác: ${percentage}%`;
+
+            if (percentage >= 80) {
+                document.getElementById('result-icon').innerText = '🎉';
+                document.getElementById('result-msg').innerText = 'Xuất sắc! Bạn đã nắm rất vững kiến thức đề cương.';
+            } else if (percentage >= 50) {
+                document.getElementById('result-icon').innerText = '👍';
+                document.getElementById('result-msg').innerText = 'Khá tốt! Hãy ôn lại các câu làm sai để đạt điểm tối đa nhé.';
+            } else {
+                document.getElementById('result-icon').innerText = '📚';
+                document.getElementById('result-msg').innerText = 'Bạn cần xem lại các kiến thức cơ bản trong đề cương.';
+            }
+
+            document.getElementById('submit-btn').classList.add('hidden');
+            resultCard.classList.remove('hidden');
+            window.scrollTo({ top: resultCard.offsetTop - 80, behavior: 'smooth' });
+        }
+
+        function scrollToAnswers() {
+            window.scrollTo({ top: quizContainer.offsetTop - 70, behavior: 'smooth' });
+        }
+
+        function restartQuiz() {
+            startQuiz();
+            resultCard.classList.add('hidden');
+            document.getElementById('submit-btn').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
